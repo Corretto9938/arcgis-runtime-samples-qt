@@ -204,7 +204,7 @@ void Animate3DSymbols::animate()
       {
         // move the camera to follow the 3d model
         Camera camera(dp.m_pos, m_camHandler->m_zoomDist, dp.m_heading, m_camHandler->m_angle, dp.m_roll);
-        m_camHandler->m_camWatcher = m_sceneView->setViewpointCamera(camera, m_camHandler->animationDurationSeconds());
+        m_camHandler->m_camWatcher = m_sceneView->setViewpointCamera(camera);
       }
 
 #ifdef ANIMATE_MAP
