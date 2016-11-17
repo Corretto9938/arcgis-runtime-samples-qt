@@ -14,20 +14,20 @@
 
 #include "AuthenticationManager.h"
 #include "Map.h"
-#include "MapQuickView.h"
 #include "Basemap.h"
 #include "Portal.h"
 #include "PortalItem.h"
 #include "PortalItemListModel.h"
 #include "PortalQueryParametersForItems.h"
-#include "SearchForWebmap.h"
+#include "SearchForWebmapController.h"
+
+#include <QAbstractListModel>
 
 using namespace Esri::ArcGISRuntime;
 
-SearchForWebmap::SearchForWebmap(QQuickItem* parent /* = nullptr */):
-    QQuickItem(parent),
+SearchForWebmapController::SearchForWebmapController(QObject* parent /* = nullptr */):
+    QObject(parent),
     m_map(nullptr),
-    m_mapView(nullptr),
     m_portal(new Portal(new Credential(OAuthClientInfo("W3hPKzPbeJ0tr8aj", OAuthMode::User), this), this)),
     m_webmapResults(nullptr),
     m_webmaps(nullptr),
@@ -35,16 +35,6 @@ SearchForWebmap::SearchForWebmap(QQuickItem* parent /* = nullptr */):
     m_portalLoaded(false)
 {
     AuthenticationManager::instance()->setCredentialCacheEnabled(false);
-}
-
-SearchForWebmap::~SearchForWebmap()
-{
-}
-
-void SearchForWebmap::componentComplete()
-{
-    QQuickItem::componentComplete();
-    emit authManagerChanged();
 
     connect(m_portal, &Portal::loadStatusChanged, this, [this](){
         m_portalLoaded = m_portal->loadStatus() == LoadStatus::Loaded;
@@ -57,45 +47,42 @@ void SearchForWebmap::componentComplete()
         emit webmapsChanged();
         emit hasMoreResultsChanged();
     });
-
-    m_portal->load();
-
-    // find QML MapView component
-    m_mapView = findChild<MapQuickView*>("mapView");
-    m_mapView->setWrapAroundMode(WrapAroundMode::Disabled);
 }
 
-bool SearchForWebmap::portalLoaded() const
+SearchForWebmapController::~SearchForWebmapController()
+{
+
+}
+
+bool SearchForWebmapController::portalLoaded() const
 {
     return m_portalLoaded;
 }
 
-QAbstractListModel* SearchForWebmap::webmaps() const
+QAbstractListModel* SearchForWebmapController::webmaps() const
 {
     return m_webmaps;
 }
 
-bool SearchForWebmap::hasMoreResults() const
+bool SearchForWebmapController::hasMoreResults() const
 {
     return m_webmapResults && m_webmapResults->nextQueryParameters().startIndex() > -1;
 }
 
-QString SearchForWebmap::mapLoadError() const
+QString SearchForWebmapController::mapLoadError() const
 {
     return m_mapLoadeError;
 }
 
-void SearchForWebmap::search(const QString keyword)
+void SearchForWebmapController::search(const QString keyword)
 {
     PortalQueryParametersForItems query;
     query.setSearchString(QString("tags:\"%1\"").arg(keyword));
     query.setTypes(QList<PortalItemType>() << PortalItemType::WebMap);
     m_portal->findItems(query);
-
-    m_mapView->setVisible(false);
 }
 
-void SearchForWebmap::searchNext()
+void SearchForWebmapController::searchNext()
 {
     if (!m_webmapResults || m_webmapResults->nextQueryParameters().startIndex() == -1)
         return;
@@ -103,7 +90,7 @@ void SearchForWebmap::searchNext()
     m_portal->findItems(m_webmapResults->nextQueryParameters());
 }
 
-void SearchForWebmap::loadSelectedWebmap(int index)
+void SearchForWebmapController::loadSelectedWebmap(int index)
 {
     if (!m_webmaps)
         return;
@@ -138,8 +125,7 @@ void SearchForWebmap::loadSelectedWebmap(int index)
             if (!m_map || m_map->loadStatus() != LoadStatus::Loaded)
                 return;
 
-            m_mapView->setMap(m_map);
-            m_mapView->setVisible(true);
+            emit mapLoaded();
         });
 
         m_map->load();
@@ -147,13 +133,24 @@ void SearchForWebmap::loadSelectedWebmap(int index)
     m_selectedItem->load();
 }
 
-void SearchForWebmap::errorAccepted()
+void SearchForWebmapController::errorAccepted()
 {
     m_mapLoadeError.clear();
     emit mapLoadErrorChanged();
 }
 
-AuthenticationManager *SearchForWebmap::authManager() const
+AuthenticationManager *SearchForWebmapController::authManager() const
 {
     return AuthenticationManager::instance();
+}
+
+Map *SearchForWebmapController::map() const
+{
+    return m_map;
+}
+
+void SearchForWebmapController::init()
+{
+    emit authManagerChanged();
+    m_portal->load();
 }

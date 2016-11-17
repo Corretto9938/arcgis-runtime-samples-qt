@@ -28,7 +28,7 @@
 #include "AuthenticationManager.h"
 #include "MapQuickView.h"
 
-#include "SearchForWebmap.h"
+#include "SearchForWebmapQuickItem.h"
 
 using namespace Esri::ArcGISRuntime;
 
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   // Register the types for QML
   qmlRegisterUncreatableType<AuthenticationManager>("Esri.Samples", 1, 0, "AuthenticationManager", "AuthenticationManager is uncreateable");
   qmlRegisterType<MapQuickView>("Esri.Samples", 1, 0, "MapView");
-  qmlRegisterType<SearchForWebmap>("Esri.Samples", 1, 0, "SearchForWebmapSample");
+  qmlRegisterType<SearchForWebmapQuickItem>("Esri.Samples", 1, 0, "SearchForWebmapSample");
 
   // Intialize application view
   QQuickView view;

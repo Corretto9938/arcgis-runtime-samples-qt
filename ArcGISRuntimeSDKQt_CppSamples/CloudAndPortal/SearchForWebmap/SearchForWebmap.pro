@@ -33,9 +33,12 @@ TARGET = SearchForWebmap
 
 #-------------------------------------------------------------------------------
 
-HEADERS += SearchForWebmap.h
+HEADERS +=  SearchForWebmapController.h \
+            SearchForWebmapQuickItem.h
 
-SOURCES += main.cpp SearchForWebmap.cpp
+SOURCES +=  main.cpp \
+            SearchForWebmapController.cpp \
+            SearchForWebmapQuickItem.cpp
 
 RESOURCES += SearchForWebmap.qrc
 

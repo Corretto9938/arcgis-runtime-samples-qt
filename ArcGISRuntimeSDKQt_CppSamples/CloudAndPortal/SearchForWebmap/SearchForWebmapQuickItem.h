@@ -12,8 +12,10 @@
 // See the Sample code usage restrictions document for further information.
 //
 
-#ifndef SEARCHFORWEBMAP_H
-#define SEARCHFORWEBMAP_H
+#ifndef SEARCHFORWEBMAPQUICKITEM_H
+#define SEARCHFORWEBMAPQUICKITEM_H
+
+class SearchForWebmapController;
 
 namespace Esri
 {
@@ -22,17 +24,13 @@ namespace Esri
         class AuthenticationManager;
         class Map;
         class MapQuickView;
-        class Portal;
-        class PortalItem;
-        class PortalItemListModel;
-        class PortalQueryResultSetForItems;
     }
 }
 
 #include <QAbstractListModel>
 #include <QQuickItem>
 
-class SearchForWebmap : public QQuickItem
+class SearchForWebmapQuickItem : public QQuickItem
 {
     Q_OBJECT
 
@@ -43,8 +41,8 @@ class SearchForWebmap : public QQuickItem
     Q_PROPERTY(QString mapLoadError READ mapLoadError NOTIFY mapLoadErrorChanged)
 
 public:
-    SearchForWebmap(QQuickItem* parent = nullptr);
-    ~SearchForWebmap();
+    SearchForWebmapQuickItem(QQuickItem* parent = nullptr);
+    ~SearchForWebmapQuickItem();
 
     void componentComplete() Q_DECL_OVERRIDE;
 
@@ -67,14 +65,8 @@ signals:
     void mapLoadErrorChanged();
 
 private:
-    Esri::ArcGISRuntime::Map* m_map;
     Esri::ArcGISRuntime::MapQuickView* m_mapView;
-    Esri::ArcGISRuntime::Portal* m_portal;
-    Esri::ArcGISRuntime::PortalQueryResultSetForItems* m_webmapResults;
-    Esri::ArcGISRuntime::PortalItemListModel* m_webmaps;
-    Esri::ArcGISRuntime::PortalItem* m_selectedItem;
-    bool m_portalLoaded;
-    QString m_mapLoadeError;
+    SearchForWebmapController* m_controller;
 };
 
-#endif // SEARCHFORWEBMAP_H
+#endif // SEARCHFORWEBMAPQUICKITEM_H
