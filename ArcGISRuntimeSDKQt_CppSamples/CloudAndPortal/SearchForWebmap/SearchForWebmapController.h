@@ -53,6 +53,7 @@ public:
     Q_INVOKABLE void loadSelectedWebmap(int index);
     Q_INVOKABLE void errorAccepted();
 
+    void setUsernamePassord(const QString& username, const QString& pw);
     void init();
 
 signals:

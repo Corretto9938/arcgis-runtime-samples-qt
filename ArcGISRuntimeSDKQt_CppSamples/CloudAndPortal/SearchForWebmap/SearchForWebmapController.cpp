@@ -139,6 +139,12 @@ void SearchForWebmapController::errorAccepted()
     emit mapLoadErrorChanged();
 }
 
+void SearchForWebmapController::setUsernamePassord(const QString &username, const QString &pw)
+{
+    Credential* newCrednetial = new Credential(username, pw, this);
+    m_portal->setCredential(newCrednetial);
+}
+
 AuthenticationManager *SearchForWebmapController::authManager() const
 {
     return AuthenticationManager::instance();
