@@ -37,7 +37,7 @@ HEADERS +=  SearchForWebmapController.h \
             SearchForWebmapWidget.h \
     form.h
 
-SOURCES +=  main.cpp \
+SOURCES +=  mainWidgets.cpp \
             SearchForWebmapController.cpp \
             SearchForWebmapWidget.cpp \
     form.cpp
