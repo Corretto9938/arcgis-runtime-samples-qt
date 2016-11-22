@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SearchForWebmapWidget</class>
+ <widget class="QWidget" name="SearchForWebmapWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>703</width>
+    <height>349</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" alignment="Qt::AlignHCenter">
+    <widget class="QPushButton" name="searchPushButton">
+     <property name="text">
+      <string>Search</string>
+     </property>
+     <property name="icon">
+      <iconset resource="SearchForWebmapWidgets.qrc">
+       <normaloff>:/Samples/CloudAndPortal/SearchForWebmap/searchIcon.png</normaloff>:/Samples/CloudAndPortal/SearchForWebmap/searchIcon.png</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLineEdit" name="searchtextLineEdit"/>
+   </item>
+   <item row="2" column="0">
+    <widget class="QListView" name="webmapsListView">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" alignment="Qt::AlignHCenter">
+    <widget class="QPushButton" name="searchMore">
+     <property name="text">
+      <string>More Results</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="SearchForWebmapWidgets.qrc"/>
+ </resources>
+ <connections/>
+</ui>
