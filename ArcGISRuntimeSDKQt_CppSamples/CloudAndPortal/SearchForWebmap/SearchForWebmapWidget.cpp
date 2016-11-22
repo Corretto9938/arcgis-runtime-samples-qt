@@ -66,8 +66,10 @@ SearchForWebmapWidget::SearchForWebmapWidget(QWidget* parent /* = nullptr */):
         m_controller->loadSelectedWebmap(clickedIdx.row());
     });
 
-    m_controller->setUsernamePassord("qtdevteam_2", "qtdevteam1234");
+    m_controller->setUsernamePassord("*****", "*****");
     m_mapView->setWrapAroundMode(WrapAroundMode::Disabled);
+    m_mapView->setMinimumWidth(500);
+    m_mapView->setMinimumHeight(500);
     m_ui->searchtextLineEdit->setEnabled(false);
     m_ui->searchPushButton->setEnabled(false);
     m_ui->webmapsListView->setEnabled(false);
@@ -76,7 +78,7 @@ SearchForWebmapWidget::SearchForWebmapWidget(QWidget* parent /* = nullptr */):
     m_ui->webmapsListView->setItemDelegate(del);
     m_ui->searchMore->setEnabled(false);
     m_ui->gridLayout->addWidget(m_mapView, 0, 1, 4, 1, Qt::AlignCenter);
-    m_ui->gridLayout->setColumnMinimumWidth(1, 100);
+    m_ui->gridLayout->setColumnMinimumWidth(1, 500);
 
     m_controller->init();
 }
@@ -131,11 +133,11 @@ void WebmapDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option
 {
     if (m_titleRole == -1)
     {
-        QHash<int,QByteArray> rolNames = index.model()->roleNames();
-        for (QHash<int,QByteArray>::const_iterator it = rolNames.begin(); it != rolNames.end(); ++it)
+        QHash<int,QByteArray> roleNames = index.model()->roleNames();
+        for (QHash<int,QByteArray>::const_iterator it = roleNames.begin(); it != roleNames.end(); ++it)
         {
             QString roleName = QString::fromStdString(it.value().toStdString());
-            if( roleName.compare("title") == 0)
+            if (roleName.compare("title") == 0)
             {
                 m_titleRole = it.key();
                 break;
