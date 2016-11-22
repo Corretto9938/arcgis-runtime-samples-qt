@@ -35,12 +35,10 @@ TARGET = SearchForWebmapWidgets
 
 HEADERS +=  SearchForWebmapController.h \
             SearchForWebmapWidget.h \
-    form.h
 
 SOURCES +=  mainWidgets.cpp \
             SearchForWebmapController.cpp \
             SearchForWebmapWidget.cpp \
-    form.cpp
 
 RESOURCES += SearchForWebmapWidgets.qrc
 
@@ -50,23 +48,9 @@ win32 {
     LIBS += Ole32.lib
 }
 
-ios {
-    INCLUDEPATH += $$PWD
-    DEPENDPATH += $$PWD
-
-    OTHER_FILES += $$PWD/Info.plist
-
-    QMAKE_INFO_PLIST = $$PWD/Info.plist
-}
-
-android {
-    INCLUDEPATH += $$PWD
-    DEPENDPATH += $$PWD
-}
-
 macx {
     QMAKE_MACOSX_DEPLOYMENT_TARGET = 10.11
 }
 
 FORMS += \
-    searchforwebmapwidget.ui
+    SearchForWebmapWidget.ui
