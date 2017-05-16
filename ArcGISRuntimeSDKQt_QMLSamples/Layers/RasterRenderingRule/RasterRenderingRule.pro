@@ -34,3 +34,6 @@ ios {
 
 # Default rules for deployment.
 include(deployment.pri)
+
+DISTFILES += \
+    SliderControl.qml

@@ -28,7 +28,8 @@ Rectangle {
 
     property double scaleFactor: System.displayScaleFactor
     property var renderingRuleNames: []
-    property url imageServiceUrl: "https://sampleserver6.arcgisonline.com/arcgis/rest/services/CharlotteLAS/ImageServer"
+    property url imageServiceUrl: "http://utility.arcgis.com/usrsvcs/servers/e202a8f394a04629979367e96d80422b/rest/services/WorldElevation/Terrain/ImageServer"//"https://sampleserver6.arcgisonline.com/arcgis/rest/services/CharlotteLAS/ImageServer"
+    property RasterLayer rasterLayer: null
 
     MapView {
         anchors.fill: parent
@@ -60,7 +61,23 @@ Rectangle {
                         }
                     }
                 }
+
+                onComponentCompleted: {
+                    rasterLayer = this;
+                }
             }
+        }
+
+        MinMaxStretchParameters {
+            id: minMaxParams
+        }
+
+        PercentClipStretchParameters {
+            id: percentClipParams
+        }
+
+        StandardDeviationStretchParameters {
+            id: standardDeviationParams
         }
 
         Rectangle {
@@ -69,8 +86,8 @@ Rectangle {
                 top: parent.top
                 margins: 5 * scaleFactor
             }
-            height: 80 * scaleFactor
-            width: 200 * scaleFactor
+            height: 200 * scaleFactor
+            width: 300 * scaleFactor
             color: "silver"
             radius: 5 * scaleFactor
 
@@ -104,6 +121,116 @@ Rectangle {
                         }
                     }
                 }
+
+                Label {
+                    text: "Apply Stretch Renderer"
+                    font.pixelSize: 16 * scaleFactor
+                }
+
+                Row {
+                    Label {
+                        text: "Stretch type: "
+                        font.pixelSize: 14 * scaleFactor
+                    }
+
+                    ComboBox {
+                        id: stretchParamType
+                        width: 130 * scaleFactor
+                        model: ["MinMax", "PercentClip", "StandardDeviation"]
+                    }
+                }
+
+                SliderControl {
+                    id: gamma
+                    visible: stretchParamType.currentText === "MinMax"
+                    spacing: 8 * scaleFactor
+                    label: "Gamma"
+                    maxRange: 10.0
+                    value: 2.0
+                    fontSize: 14 * scaleFactor
+                }
+
+                //                SliderControl {
+                //                    id: minMaxMax
+                //                    visible: stretchParamType.currentText === "MinMax"
+                //                    spacing: 8 * scaleFactor
+                //                    label: "Min Value"
+                //                    maxRange: 255
+                //                    value: 0
+                //                    fontSize: 14 * scaleFactor
+                //                }
+
+                //                SliderControl {
+                //                    id: minMaxMin
+                //                    visible: stretchParamType.currentText === "MinMax"
+                //                    spacing: 8 * scaleFactor
+                //                    label: "Max Value"
+                //                    maxRange: 255
+                //                    value: 255
+                //                    fontSize: 14 * scaleFactor
+                //                }
+
+                SliderControl {
+                    id: percentClipMin
+                    visible: stretchParamType.currentText === "PercentClip"
+                    spacing: 8 * scaleFactor
+                    label: "Min Value"
+                    maxRange: 255
+                    value: 0
+                    fontSize: 14 * scaleFactor
+                }
+
+                SliderControl {
+                    id: percentClipMax
+                    visible: stretchParamType.currentText === "PercentClip"
+                    spacing: 8 * scaleFactor
+                    label: "Max Value"
+                    maxRange: 255
+                    value: 255
+                    fontSize: 14 * scaleFactor
+                }
+
+                SliderControl {
+                    id: sd
+                    visible: stretchParamType.currentText === "StandardDeviation"
+                    spacing: 8 * scaleFactor
+                    label: "Factor"
+                    maxRange: 25
+                    value: 0
+                    steps: 0.5
+                    fontSize: 14 * scaleFactor
+                }
+
+                Button {
+                    text: "Apply"
+                    onClicked: {
+                        var renderer = ArcGISRuntimeEnvironment.createObject("StretchRenderer");
+                        renderer.gammasChanged.connect(function(){
+                            console.log("Gamma changed");
+                        });
+                        renderer.gammas = [gamma.value];
+
+                        var currentText = stretchParamType.currentText;
+                        if (currentText === "MinMax") {
+                            //                            minMaxParams.minValues = [minMaxMin.value];
+                            //                            minMaxParams.maxValues = [minMaxMax.value];
+                            renderer.stretchParameters = minMaxParams;
+                        }
+                        else if(currentText === "PercentClip") {
+                            percentClipParams.min = percentClipMin.value;
+                            percentClipParams.max = 100 - percentClipMax.value;
+                            renderer.stretchParameters = percentClipParams;
+                        }
+                        else {
+                            standardDeviationParams.factor = sd.value;
+                            renderer.stretchParameters = standardDeviationParams;
+                        }
+
+                        if (rasterLayer) {
+                            rasterLayer.renderer = renderer;
+                        }
+                    }
+                }
             }
         }
     }
@@ -117,8 +244,10 @@ Rectangle {
         var newImageServiceRaster = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: imageServiceUrl});
         // apply the rendering rule
         newImageServiceRaster.renderingRule = renderingRule;
+        rasterLayer = null;
         // create a raster layer using the image service raster
-        var rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: newImageServiceRaster});
+        rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: newImageServiceRaster});
+        map.operationalLayers.clear();
         // add the raster layer to the map
         map.operationalLayers.append(rasterLayer);
     }

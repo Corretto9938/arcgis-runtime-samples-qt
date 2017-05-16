@@ -2,6 +2,7 @@
     <qresource prefix="/Samples/Layers/RasterRenderingRule">
         <file alias="sample.json">RasterRenderingRule.json</file>
         <file>RasterRenderingRule.qml</file>
+        <file>SliderControl.qml</file>
         <file>README.md</file>
         <file>screenshot.png</file>
     </qresource>
