@@ -30,6 +30,7 @@ Rectangle {
     property var renderingRuleNames: []
     property url imageServiceUrl: "http://utility.arcgis.com/usrsvcs/servers/e202a8f394a04629979367e96d80422b/rest/services/WorldElevation/Terrain/ImageServer"//"https://sampleserver6.arcgisonline.com/arcgis/rest/services/CharlotteLAS/ImageServer"
     property RasterLayer rasterLayer: null
+    property ImageServiceRaster isr: null
 
     MapView {
         anchors.fill: parent
@@ -40,32 +41,32 @@ Rectangle {
             // create a basemap from a tiled layer and add to the map
             BasemapStreets {}
 
-            // create and add a raster layer to the map
-            RasterLayer {
-                // create the raster layer from an image service raster
-                ImageServiceRaster {
-                    id: imageServiceRaster
-                    url: imageServiceUrl
+//            // create and add a raster layer to the map
+//            RasterLayer {
+//                // create the raster layer from an image service raster
+//                ImageServiceRaster {
+//                    id: imageServiceRaster
+//                    url: imageServiceUrl
 
-                    // zoom to the extent of the raster once it's loaded
-                    onLoadStatusChanged: {
-                        if (loadStatus === Enums.LoadStatusLoaded) {
-                            mapView.setViewpointGeometry(imageServiceRaster.serviceInfo.fullExtent);
+//                    // zoom to the extent of the raster once it's loaded
+//                    onLoadStatusChanged: {
+//                        if (loadStatus === Enums.LoadStatusLoaded) {
+//                            mapView.setViewpointGeometry(imageServiceRaster.serviceInfo.fullExtent);
 
-                            var renderingRuleInfos = imageServiceRaster.serviceInfo.renderingRuleInfos;
-                            var names = [];
-                            for (var i = 0; i < renderingRuleInfos.length; i++) {
-                                names.push(renderingRuleInfos[i].name);
-                            }
-                            renderingRuleNames = names;
-                        }
-                    }
-                }
+//                            var renderingRuleInfos = imageServiceRaster.serviceInfo.renderingRuleInfos;
+//                            var names = [];
+//                            for (var i = 0; i < renderingRuleInfos.length; i++) {
+//                                names.push(renderingRuleInfos[i].name);
+//                            }
+//                            renderingRuleNames = names;
+//                        }
+//                    }
+//                }
 
-                onComponentCompleted: {
-                    rasterLayer = this;
-                }
-            }
+//                onComponentCompleted: {
+//                    rasterLayer = this;
+//                }
+//            }
         }
 
         MinMaxStretchParameters {
@@ -86,7 +87,7 @@ Rectangle {
                 top: parent.top
                 margins: 5 * scaleFactor
             }
-            height: 200 * scaleFactor
+            height: 250 * scaleFactor
             width: 300 * scaleFactor
             color: "silver"
             radius: 5 * scaleFactor
@@ -96,6 +97,50 @@ Rectangle {
                 anchors {
                     fill: parent
                     margins: 5 * scaleFactor
+                }
+
+                Label {
+                    text: "Select an ImageService"
+                    font.pixelSize: 16 * scaleFactor
+                }
+                Row {
+                    ComboBox {
+                        id: isrCombo
+                        width: 130 * scaleFactor
+                        model: [
+                            "https://rdvmtest01.esri.com/server/rest/services/southafrica/ImageServer",
+                            "http://sampleserver6.arcgisonline.com/arcgis/rest/services/NLCDLandCover2001/ImageServer",
+                            "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Toronto/ImageServer",
+                            "http://clear3.uconn.edu/arcgis/rest/services/Aerials/CTCoast1934/ImageServer",
+                            "https://landsat2.arcgis.com/arcgis/rest/services/Landsat8_Views/ImageServer",
+                            "http://holistic30.esri.com:6080/arcgis/rest/services/elevation/ImageServer",
+                            "https://imagery.gis.in.gov/arcgis/rest/services/Imagery/2011_2013_Imagery/ImageServer",
+                            "http://imagery.arcgisonline.com/arcgis/rest/services/LandsatGLSChange/NDVI_Change_2005_2010/ImageServer",
+                            "http://utility.arcgis.com/usrsvcs/servers/e202a8f394a04629979367e96d80422b/rest/services/WorldElevation/Terrain/ImageServer"
+                        ]
+                    }
+
+                    Button {
+                        text: "Go"
+                        onClicked: {
+                            isr = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: isrCombo.currentText});
+                            isr.loadStatusChanged.connect(function(){
+                                if (isr.loadStatus === Enums.LoadStatusLoaded) {
+                                    mapView.setViewpointGeometry(isr.serviceInfo.fullExtent);
+
+                                    var renderingRuleInfos = isr.serviceInfo.renderingRuleInfos;
+                                    var names = [];
+                                    for (var i = 0; i < isr.serviceInfo.renderingRuleInfos.length; i++) {
+                                        names.push(isr.serviceInfo.renderingRuleInfos[i].name);
+                                    }
+                                    renderingRuleNames = names;
+                                }
+                            });
+
+                            rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: isr});
+                            mapView.map.operationalLayers.append(rasterLayer);
+                        }
+                    }
                 }
 
                 Label {
@@ -147,73 +192,54 @@ Rectangle {
                     label: "Gamma"
                     maxRange: 10.0
                     value: 2.0
+                    steps: 0.1
                     fontSize: 14 * scaleFactor
                 }
 
-                //                SliderControl {
-                //                    id: minMaxMax
-                //                    visible: stretchParamType.currentText === "MinMax"
-                //                    spacing: 8 * scaleFactor
-                //                    label: "Min Value"
-                //                    maxRange: 255
-                //                    value: 0
-                //                    fontSize: 14 * scaleFactor
-                //                }
+//                SliderControl {
+//                    id: percentClipMin
+//                    visible: stretchParamType.currentText === "PercentClip"
+//                    spacing: 8 * scaleFactor
+//                    label: "Min Value"
+//                    maxRange: 255
+//                    value: 0
+//                    fontSize: 14 * scaleFactor
+//                }
 
-                //                SliderControl {
-                //                    id: minMaxMin
-                //                    visible: stretchParamType.currentText === "MinMax"
-                //                    spacing: 8 * scaleFactor
-                //                    label: "Max Value"
-                //                    maxRange: 255
-                //                    value: 255
-                //                    fontSize: 14 * scaleFactor
-                //                }
+//                SliderControl {
+//                    id: percentClipMax
+//                    visible: stretchParamType.currentText === "PercentClip"
+//                    spacing: 8 * scaleFactor
+//                    label: "Max Value"
+//                    maxRange: 255
+//                    value: 255
+//                    fontSize: 14 * scaleFactor
+//                }
 
-                SliderControl {
-                    id: percentClipMin
-                    visible: stretchParamType.currentText === "PercentClip"
-                    spacing: 8 * scaleFactor
-                    label: "Min Value"
-                    maxRange: 255
-                    value: 0
-                    fontSize: 14 * scaleFactor
-                }
-
-                SliderControl {
-                    id: percentClipMax
-                    visible: stretchParamType.currentText === "PercentClip"
-                    spacing: 8 * scaleFactor
-                    label: "Max Value"
-                    maxRange: 255
-                    value: 255
-                    fontSize: 14 * scaleFactor
-                }
-
-                SliderControl {
-                    id: sd
-                    visible: stretchParamType.currentText === "StandardDeviation"
-                    spacing: 8 * scaleFactor
-                    label: "Factor"
-                    maxRange: 25
-                    value: 0
-                    steps: 0.5
-                    fontSize: 14 * scaleFactor
-                }
+//                SliderControl {
+//                    id: sd
+//                    visible: stretchParamType.currentText === "StandardDeviation"
+//                    spacing: 8 * scaleFactor
+//                    label: "Factor"
+//                    maxRange: 25
+//                    value: 0
+//                    steps: 0.5
+//                    fontSize: 14 * scaleFactor
+//                }
 
                 Button {
                     text: "Apply"
                     onClicked: {
                         var renderer = ArcGISRuntimeEnvironment.createObject("StretchRenderer");
-                        renderer.gammasChanged.connect(function(){
-                            console.log("Gamma changed");
-                        });
+                        //                        renderer.gammasChanged.connect(function(){
+                        //                            console.log("Gamma changed");
+                        //                        });
                         renderer.gammas = [gamma.value];
 
                         var currentText = stretchParamType.currentText;
                         if (currentText === "MinMax") {
-                            //                            minMaxParams.minValues = [minMaxMin.value];
-                            //                            minMaxParams.maxValues = [minMaxMax.value];
+                            minMaxParams.minValues = [100];
+                            minMaxParams.maxValues = [500];
                             renderer.stretchParameters = minMaxParams;
                         }
                         else if(currentText === "PercentClip") {
@@ -237,17 +263,18 @@ Rectangle {
 
     function applyRenderingRule(index) {
         // get the rendering rule info at the selected index
-        var renderingRuleInfo = imageServiceRaster.serviceInfo.renderingRuleInfos[index];
+        var renderingRuleInfo = isr.serviceInfo.renderingRuleInfos[index];
         // create a rendering rule object using the rendering rule info
         var renderingRule = ArcGISRuntimeEnvironment.createObject("RenderingRule", {renderingRuleInfo: renderingRuleInfo});
         // create a new image service raster
         var newImageServiceRaster = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: imageServiceUrl});
         // apply the rendering rule
         newImageServiceRaster.renderingRule = renderingRule;
+
         rasterLayer = null;
         // create a raster layer using the image service raster
         rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: newImageServiceRaster});
-        map.operationalLayers.clear();
+//        map.operationalLayers.clear();
         // add the raster layer to the map
         map.operationalLayers.append(rasterLayer);
     }
