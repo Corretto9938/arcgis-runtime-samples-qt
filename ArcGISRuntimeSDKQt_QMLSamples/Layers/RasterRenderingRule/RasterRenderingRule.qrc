@@ -5,5 +5,8 @@
         <file>SliderControl.qml</file>
         <file>README.md</file>
         <file>screenshot.png</file>
+        </qresource>
+    <qresource prefix="/images">
+        <file>hamburger_icon.png</file>
     </qresource>
 </RCC>

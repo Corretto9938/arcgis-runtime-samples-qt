@@ -1,5 +1,3 @@
-// [WriteFile Name=RasterRenderingRule, Category=Layers]
-// [Legal]
 // Copyright 2017 Esri.
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,110 +18,107 @@ import Esri.ArcGISRuntime 100.1
 import Esri.ArcGISExtras 1.1
 
 Rectangle {
-    id: rootRectangle
+    id: demo
     clip: true
 
-    width: 800
-    height: 600
+    width: 1920
+    height: 1200
 
     property double scaleFactor: System.displayScaleFactor
+    property bool sideBarVisible : false
+    property real sidebarWidth : 0.25
     property var renderingRuleNames: []
     property url imageServiceUrl: "http://utility.arcgis.com/usrsvcs/servers/e202a8f394a04629979367e96d80422b/rest/services/WorldElevation/Terrain/ImageServer"//"https://sampleserver6.arcgisonline.com/arcgis/rest/services/CharlotteLAS/ImageServer"
     property RasterLayer rasterLayer: null
     property ImageServiceRaster isr: null
 
-    MapView {
-        anchors.fill: parent
-        id: mapView
-
-        Map {
-            id: map
-            // create a basemap from a tiled layer and add to the map
-            BasemapStreets {}
-
-//            // create and add a raster layer to the map
-//            RasterLayer {
-//                // create the raster layer from an image service raster
-//                ImageServiceRaster {
-//                    id: imageServiceRaster
-//                    url: imageServiceUrl
-
-//                    // zoom to the extent of the raster once it's loaded
-//                    onLoadStatusChanged: {
-//                        if (loadStatus === Enums.LoadStatusLoaded) {
-//                            mapView.setViewpointGeometry(imageServiceRaster.serviceInfo.fullExtent);
-
-//                            var renderingRuleInfos = imageServiceRaster.serviceInfo.renderingRuleInfos;
-//                            var names = [];
-//                            for (var i = 0; i < renderingRuleInfos.length; i++) {
-//                                names.push(renderingRuleInfos[i].name);
-//                            }
-//                            renderingRuleNames = names;
-//                        }
-//                    }
-//                }
-
-//                onComponentCompleted: {
-//                    rasterLayer = this;
-//                }
-//            }
+    ListModel {
+        id: isrModel
+//        ListElement {
+//         name: "South Africa"
+//         url: "https://rdvmtest01.esri.com/server/rest/services/southafrica/ImageServer"
+//         user: "admin"
+//         pwd: "adminadmin"
+//        }
+        ListElement {
+            name: "Land Cover"
+            url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/NLCDLandCover2001/ImageServer"
         }
-
-        MinMaxStretchParameters {
-            id: minMaxParams
+        ListElement {
+            name: "4 band Satellite Imagery Toronto"
+            url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Toronto/ImageServer"
         }
-
-        PercentClipStretchParameters {
-            id: percentClipParams
+        ListElement {
+            name: "CT Aerial Photographs"
+            url: "http://clear3.uconn.edu/arcgis/rest/services/Aerials/CTCoast1934/ImageServer"
         }
-
-        StandardDeviationStretchParameters {
-            id: standardDeviationParams
+        ListElement {
+            name: "8 band multispectral"
+            url: "https://landsat2.arcgis.com/arcgis/rest/services/Landsat8_Views/ImageServer"
         }
+        ListElement {
+            name: "IN Orthos"
+            url: "https://imagery.gis.in.gov/arcgis/rest/services/Imagery/2011_2013_Imagery/ImageServer"
+        }
+        ListElement {
+            name: "NDVI"
+            url: "http://imagery.arcgisonline.com/arcgis/rest/services/LandsatGLSChange/NDVI_Change_2005_2010/ImageServer"
+        }
+        ListElement {
+            name: "World Elevation"
+            url: "http://utility.arcgis.com/usrsvcs/servers/e202a8f394a04629979367e96d80422b/rest/services/WorldElevation/Terrain/ImageServer"
+        }
+    }
+
+    Rectangle {
+        id: sidebar
+        anchors {
+            left: parent.left
+            top: titleBar.bottom
+            right: parent.right
+            bottom: parent.bottom
+        }
+        visible: true
+        //width: Qt.platform.os === "ios" || Qt.platform.os === "android" ? 250 * scaleFactor : 350 * scaleFactor
+        color: "#FBFBFB"
 
         Rectangle {
+            id: optionsRect
             anchors {
-                left: parent.left
                 top: parent.top
-                margins: 5 * scaleFactor
+                left: parent.left
+                right: parent.right
+                margins: 10 * scaleFactor
             }
-            height: 250 * scaleFactor
-            width: 300 * scaleFactor
-            color: "silver"
+            height: 100 * scaleFactor
             radius: 5 * scaleFactor
+            color: "lightgrey"
 
             Column {
                 spacing: 10 * scaleFactor
-                anchors {
-                    fill: parent
-                    margins: 5 * scaleFactor
+                anchors.fill: parent
+                anchors.margins: 10 * scaleFactor
+
+                Text {
+                    text: qsTr("Select an ImageService")
+                    font.pixelSize: 20 * scaleFactor
                 }
 
-                Label {
-                    text: "Select an ImageService"
-                    font.pixelSize: 16 * scaleFactor
-                }
                 Row {
+                    spacing: 10 * scaleFactor
+
                     ComboBox {
                         id: isrCombo
-                        width: 130 * scaleFactor
-                        model: [
-                            "https://rdvmtest01.esri.com/server/rest/services/southafrica/ImageServer",
-                            "http://sampleserver6.arcgisonline.com/arcgis/rest/services/NLCDLandCover2001/ImageServer",
-                            "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Toronto/ImageServer",
-                            "http://clear3.uconn.edu/arcgis/rest/services/Aerials/CTCoast1934/ImageServer",
-                            "https://landsat2.arcgis.com/arcgis/rest/services/Landsat8_Views/ImageServer",
-                            "http://holistic30.esri.com:6080/arcgis/rest/services/elevation/ImageServer",
-                            "https://imagery.gis.in.gov/arcgis/rest/services/Imagery/2011_2013_Imagery/ImageServer",
-                            "http://imagery.arcgisonline.com/arcgis/rest/services/LandsatGLSChange/NDVI_Change_2005_2010/ImageServer",
-                            "http://utility.arcgis.com/usrsvcs/servers/e202a8f394a04629979367e96d80422b/rest/services/WorldElevation/Terrain/ImageServer"
-                        ]
+                        width: 200 * scaleFactor
+                        model: isrModel
+                        textRole: "name"
                     }
 
                     Button {
                         text: "Go"
                         onClicked: {
-                            isr = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: isrCombo.currentText});
+                            var credential = ArcGISRuntimeEnvironment.createObject("Credential", {usename: isrModel.get(isrCombo.currentIndex).user, password: isrModel.get(isrCombo.currentIndex).pwd})
+                            isr = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: isrModel.get(isrCombo.currentIndex).url, credential: credential});
                             isr.loadStatusChanged.connect(function(){
                                 if (isr.loadStatus === Enums.LoadStatusLoaded) {
                                     mapView.setViewpointGeometry(isr.serviceInfo.fullExtent);
@@ -138,49 +133,86 @@ Rectangle {
                             });
 
                             rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: isr});
+                            mapView.map.operationalLayers.clear();
                             mapView.map.operationalLayers.append(rasterLayer);
                         }
                     }
                 }
+            }
+        }
 
-                Label {
-                    text: "Apply a Rendering Rule"
-                    font.pixelSize: 16 * scaleFactor
+        Rectangle {
+            id: renderingRulesRect
+            anchors {
+                top: optionsRect.bottom
+                left: parent.left
+                right: parent.right
+                margins: 10 * scaleFactor
+            }
+            height: 100 * scaleFactor
+            radius: 5 * scaleFactor
+
+            Column {
+                spacing: 10 * scaleFactor
+                anchors.fill: parent
+                anchors.margins: 10 * scaleFactor
+                Text {
+                    text: qsTr("Rendering Rule")
+                    font.pixelSize: 20 * scaleFactor
                 }
 
                 Row {
-                    spacing: 5 * scaleFactor
+                    spacing: 10 * scaleFactor
 
                     ComboBox {
                         id: renderingRulesCombo
-                        width: 130 * scaleFactor
+                        width: 200 * scaleFactor
                         model: renderingRuleNames
                     }
 
                     Button {
                         id: applyButton
                         text: "Apply"
-                        width: 50 * scaleFactor
                         onClicked: {
                             applyRenderingRule(renderingRulesCombo.currentIndex);
                         }
                     }
                 }
 
-                Label {
-                    text: "Apply Stretch Renderer"
-                    font.pixelSize: 16 * scaleFactor
+            }
+        }
+
+        Rectangle {
+            id: rendererRect
+            anchors {
+                top: renderingRulesRect.bottom
+                left: parent.left
+                right: parent.right
+                margins: 10 * scaleFactor
+            }
+            height: 100 * scaleFactor
+            radius: 5 * scaleFactor
+
+            Column {
+                spacing: 10 * scaleFactor
+                anchors.fill: parent
+                anchors.margins: 10 * scaleFactor
+                Text {
+                    text: qsTr("Stretch Renderer")
+                    font.pixelSize: 20 * scaleFactor
                 }
 
                 Row {
-                    Label {
+                    spacing: 10 * scaleFactor
+
+                    Text {
                         text: "Stretch type: "
                         font.pixelSize: 14 * scaleFactor
                     }
 
                     ComboBox {
                         id: stretchParamType
-                        width: 130 * scaleFactor
+                        width: 200 * scaleFactor
                         model: ["MinMax", "PercentClip", "StandardDeviation"]
                     }
                 }
@@ -196,39 +228,11 @@ Rectangle {
                     fontSize: 14 * scaleFactor
                 }
 
-//                SliderControl {
-//                    id: percentClipMin
-//                    visible: stretchParamType.currentText === "PercentClip"
-//                    spacing: 8 * scaleFactor
-//                    label: "Min Value"
-//                    maxRange: 255
-//                    value: 0
-//                    fontSize: 14 * scaleFactor
-//                }
-
-//                SliderControl {
-//                    id: percentClipMax
-//                    visible: stretchParamType.currentText === "PercentClip"
-//                    spacing: 8 * scaleFactor
-//                    label: "Max Value"
-//                    maxRange: 255
-//                    value: 255
-//                    fontSize: 14 * scaleFactor
-//                }
-
-//                SliderControl {
-//                    id: sd
-//                    visible: stretchParamType.currentText === "StandardDeviation"
-//                    spacing: 8 * scaleFactor
-//                    label: "Factor"
-//                    maxRange: 25
-//                    value: 0
-//                    steps: 0.5
-//                    fontSize: 14 * scaleFactor
-//                }
-
                 Button {
                     text: "Apply"
+                    anchors.left: parent.left
+                    anchors.leftMargin: 220 * scaleFactor
+//                    width: 300 * scaleFactor
                     onClicked: {
                         var renderer = ArcGISRuntimeEnvironment.createObject("StretchRenderer");
                         //                        renderer.gammasChanged.connect(function(){
@@ -258,24 +262,107 @@ Rectangle {
                     }
                 }
             }
+
         }
     }
 
-    function applyRenderingRule(index) {
-        // get the rendering rule info at the selected index
-        var renderingRuleInfo = isr.serviceInfo.renderingRuleInfos[index];
-        // create a rendering rule object using the rendering rule info
-        var renderingRule = ArcGISRuntimeEnvironment.createObject("RenderingRule", {renderingRuleInfo: renderingRuleInfo});
-        // create a new image service raster
-        var newImageServiceRaster = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: imageServiceUrl});
-        // apply the rendering rule
-        newImageServiceRaster.renderingRule = renderingRule;
+        //***************** Title bar ************************************************
+        Rectangle {
+            id: titleBar
+            anchors {
+                left: parent.left
+                right: parent.right
+                top: parent.top
+            }
+            height: 50
+            color: "#005d9a"
 
-        rasterLayer = null;
-        // create a raster layer using the image service raster
-        rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: newImageServiceRaster});
-//        map.operationalLayers.clear();
-        // add the raster layer to the map
-        map.operationalLayers.append(rasterLayer);
+            Image {
+                anchors {
+                    left: parent.left
+                    verticalCenter: parent.verticalCenter
+                }
+                width: 40
+                height: 50
+                source: "qrc:///images/hamburger_icon.png"
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        showMenu();
+                    }
+                }
+            }
+
+            Text {
+                text: "Image Service Raster Demo"
+                anchors.centerIn: parent
+                color: "white"
+                font {
+                    family: "sanserif"
+                    pixelSize: 30
+                }
+            }
+        }
+        //***************** Title bar end************************************************
+
+
+        MapView {
+            id: mapView
+            anchors {
+                left: parent.left
+                top: titleBar.bottom
+                bottom: parent.bottom
+                right: parent.right
+            }
+//            wrapAroundMode: Enums.WrapAroundModeDisabled
+
+            Map {
+                id: map
+                // create a basemap from a tiled layer and add to the map
+                BasemapStreets {}
+            }
+
+            MinMaxStretchParameters {
+                id: minMaxParams
+            }
+
+            PercentClipStretchParameters {
+                id: percentClipParams
+            }
+
+            StandardDeviationStretchParameters {
+                id: standardDeviationParams
+            }
+
+            transform: Translate {
+                id: translate
+                x: 0
+                Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutQuad }}
+            }
+        }
+
+        function applyRenderingRule(index) {
+            // get the rendering rule info at the selected index
+            var renderingRuleInfo = isr.serviceInfo.renderingRuleInfos[index];
+            // create a rendering rule object using the rendering rule info
+            var renderingRule = ArcGISRuntimeEnvironment.createObject("RenderingRule", {renderingRuleInfo: renderingRuleInfo});
+            // create a new image service raster
+            var newImageServiceRaster = ArcGISRuntimeEnvironment.createObject("ImageServiceRaster", {url: imageServiceUrl});
+            // apply the rendering rule
+            newImageServiceRaster.renderingRule = renderingRule;
+
+            rasterLayer = null;
+            // create a raster layer using the image service raster
+            rasterLayer = ArcGISRuntimeEnvironment.createObject("RasterLayer", {raster: newImageServiceRaster});
+            //        map.operationalLayers.clear();
+            // add the raster layer to the map
+            map.operationalLayers.append(rasterLayer);
+        }
+
+        // function to control the showing and hiding of the sidebar
+        function showMenu() {
+            translate.x = sideBarVisible ? 0 : demo.width * sidebarWidth;
+            sideBarVisible = !sideBarVisible;
+        }
     }
-}
