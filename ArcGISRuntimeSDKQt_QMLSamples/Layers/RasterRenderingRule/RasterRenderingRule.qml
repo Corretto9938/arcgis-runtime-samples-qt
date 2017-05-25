@@ -21,8 +21,8 @@ Rectangle {
     id: demo
     clip: true
 
-    width: 1920
-    height: 1200
+    width: 800
+    height: 600
 
     property double scaleFactor: System.displayScaleFactor
     property bool sideBarVisible : false
@@ -235,16 +235,13 @@ Rectangle {
 //                    width: 300 * scaleFactor
                     onClicked: {
                         var renderer = ArcGISRuntimeEnvironment.createObject("StretchRenderer");
-                        //                        renderer.gammasChanged.connect(function(){
-                        //                            console.log("Gamma changed");
-                        //                        });
                         renderer.gammas = [gamma.value];
 
                         var currentText = stretchParamType.currentText;
                         if (currentText === "MinMax") {
-                            minMaxParams.minValues = [100];
-                            minMaxParams.maxValues = [500];
-                            renderer.stretchParameters = minMaxParams;
+//                            minMaxParams.minValues = [100];
+//                            minMaxParams.maxValues = [500];
+//                            renderer.stretchParameters = minMaxParams;
                         }
                         else if(currentText === "PercentClip") {
                             percentClipParams.min = percentClipMin.value;
@@ -340,6 +337,16 @@ Rectangle {
                 x: 0
                 Behavior on x { NumberAnimation { duration: 300; easing.type: Easing.OutQuad }}
             }
+
+            Button {
+                anchors.left: parent.left
+                text: "Click"
+
+                onClicked: {
+                    console.log(JSON.stringify(isr.serviceInfo.fullExtent.json));
+                }
+            }
+
         }
 
         function applyRenderingRule(index) {
